@@ -3,11 +3,16 @@ import { Server, Socket } from "socket.io";
 const roomsMap = new Map();
 const numberOfUsersDefault = 0;
 
-/*const findUser = (username) => {
+const findRoomByUsername = (username) => {
+  let room;
   roomsMap.forEach((users, roomName) => {
-    const room = users.find(user => user.username === username);
+    users.find(user => {
+      if(user.username === username) room = roomName;
+    });
   })
-}*/
+
+  return room
+}
 
 const getUsersCount = (roomName) => {
   return roomsMap.get(roomName).length
@@ -31,10 +36,7 @@ const removeUserFromRoom = (roomName, server, username) => {
   server.emit("REMOVE_USER", username)
 }
 
-
 const listRooms = (socket) => {
-  console.log([...roomsMap.entries()]);
-
   socket.emit("LIST_ROOMS_RESPONSE", [...roomsMap.entries()]);
 };
 
@@ -102,9 +104,11 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     leaveRoom(roomName, server, username);
 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
-  });
+  })
 
   socket.on("disconnect", () => {
-
+    const roomName = findRoomByUsername(username);
+    socket.leave(roomName);
+    leaveRoom(roomName, server, username)
   })
 };
