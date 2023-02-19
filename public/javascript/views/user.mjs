@@ -68,6 +68,8 @@ const setProgress = ({ username, progress }) => {
 
 const removeUserElement = username => document.querySelector(`.user[data-username='${username}']`)?.remove();
 
+const userExists = name => document.querySelector(`.user[data-username='${name}']`) !== null;
+
 const getReadySign = ready => (ready ? '🟢' : '🔴');
 
-export { appendUserElement, changeReadyStatus, setProgress, removeUserElement };
+export { appendUserElement, changeReadyStatus, setProgress, removeUserElement, userExists };

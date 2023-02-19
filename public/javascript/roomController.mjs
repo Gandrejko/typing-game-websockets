@@ -6,7 +6,7 @@ import {
   removeRoomElement,
 } from "./views/room.mjs";
 import { addClass, removeClass } from "./helpers/domHelper.mjs";
-import {appendUserElement, removeUserElement} from "./views/user.mjs";
+import {appendUserElement, removeUserElement, userExists} from "./views/user.mjs";
 
 import socket from "./socket.standalone.mjs";
 
@@ -92,6 +92,8 @@ socket.on("LIST_ROOMS_RESPONSE", (list) => {
 
 socket.on("LIST_USERS_RESPONSE", (list) => {
   for (const user of list) {
-    appendUserElement(user);
+    if(!userExists(user.username)) {
+      appendUserElement(user);
+    }
   }
 });
