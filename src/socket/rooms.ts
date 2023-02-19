@@ -3,7 +3,38 @@ import { Server, Socket } from "socket.io";
 const roomsMap = new Map();
 const numberOfUsersDefault = 0;
 
+/*const findUser = (username) => {
+  roomsMap.forEach((users, roomName) => {
+    const room = users.find(user => user.username === username);
+  })
+}*/
+
+const getUsersCount = (roomName) => {
+  return roomsMap.get(roomName).length
+}
+
+const addUserToRoom = (roomName, server, username) => {
+  const newUser = {username, ready: false, isCurrentUser: true}
+  roomsMap.set(roomName, [...roomsMap.get(roomName), newUser]);
+
+  server.emit("ADD_USER", newUser);
+}
+
+const removeUserFromRoom = (roomName, server, username) => {
+  const users = roomsMap.get(roomName);
+  const index = users.findIndex(n => n.username === username);
+  if (index !== -1) {
+    users.splice(index, 1);
+  }
+  roomsMap.set(roomName, users);
+
+  server.emit("REMOVE_USER", username)
+}
+
+
 const listRooms = (socket) => {
+  console.log([...roomsMap.entries()]);
+
   socket.emit("LIST_ROOMS_RESPONSE", [...roomsMap.entries()]);
 };
 
@@ -12,67 +43,55 @@ const deleteRoom = (roomName, server) => {
   server.emit("ROOM_DELETED", { roomName });
 };
 
-const leaveRoom = (roomName, server) => {
+const leaveRoom = (roomName, server, username) => {
   if (!roomsMap.has(roomName)) {
     return;
   }
 
-  const currentCount = roomsMap.get(roomName);
+  removeUserFromRoom(roomName, server, username);
+
+  const currentCount = getUsersCount(roomName);
 
   if (currentCount <= 0) {
-    deleteRoom(roomName, server);
-  }
-
-  const updatedCount = roomsMap.set(roomName, currentCount - 1).get(roomName);
-
-  if (updatedCount <= 0) {
     deleteRoom(roomName, server);
   } else {
-    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: updatedCount });
+    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: currentCount });
   }
 };
 
-const joinRoom = (roomName, server) => {
+const joinRoom = (roomName, server, username) => {
   if (!roomsMap.has(roomName)) {
     return;
   }
 
-  let currentCount = roomsMap.get(roomName);
+  addUserToRoom(roomName, server, username);
 
-  if (currentCount <= 0) {
-    currentCount = 0;
-  }
+  const currentCount = getUsersCount(roomName);
 
-  const updatedCount = roomsMap.set(roomName, currentCount + 1).get(roomName);
-
-  server.emit("ROOM_UPDATED", { roomName, numberOfUsers: updatedCount });
+  server.emit("ROOM_UPDATED", { roomName, numberOfUsers: currentCount });
 };
 
-export const setupRoomsControls = (socket: Socket, server: Server) => {
+export const setupRoomsControls = (socket: Socket, server: Server, username) => {
   listRooms(socket);
 
   socket.on("ADD_ROOM", (roomName: string) => {
     if (roomsMap.has(roomName)) {
-      socket.emit("ADD_ROOM_FAIL", {
+      socket.emit("FAIL", {
         message: `Room with name "${roomName}" already exist`,
       });
       return;
     }
 
-    const numberOfUsers = numberOfUsersDefault;
+    roomsMap.set(roomName, []);
 
-    roomsMap.set(roomName, numberOfUsers);
-
-    server.emit("ROOM_UPDATED", { roomName, numberOfUsers });
-    socket.emit("ADD_ROOM_SUCCESS", {
-      roomName,
-    });
+    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: getUsersCount(roomName) });
+    socket.emit("ADD_ROOM_SUCCESS", roomName);
   });
 
-  socket.on("JOIN_ROOM", ({ roomName }: { roomName: string }) => {
+  socket.on("JOIN_ROOM", (roomName: string) => {
     socket.join(roomName);
 
-    joinRoom(roomName, server);
+    joinRoom(roomName, server, username);
 
     socket.emit("JOIN_ROOM_SUCCESS", roomName);
   });
@@ -80,8 +99,12 @@ export const setupRoomsControls = (socket: Socket, server: Server) => {
   socket.on("LEAVE_ROOM", (roomName: string) => {
     socket.leave(roomName);
 
-    leaveRoom(roomName, server);
+    leaveRoom(roomName, server, username);
 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
   });
+
+  socket.on("disconnect", () => {
+
+  })
 };

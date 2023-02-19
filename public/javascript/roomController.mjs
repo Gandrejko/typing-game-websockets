@@ -6,7 +6,7 @@ import {
   removeRoomElement,
 } from "./views/room.mjs";
 import { addClass, removeClass } from "./helpers/domHelper.mjs";
-import { appendUserElement } from "./views/user.mjs";
+import {appendUserElement, removeUserElement} from "./views/user.mjs";
 
 import socket from "./socket.standalone.mjs";
 
@@ -23,10 +23,12 @@ const onAddRoom = () => {
   });
 };
 
-socket.on("ADD_ROOM_FAIL", (message) => showMessageModal(message));
-socket.on("ADD_ROOM_SUCCESS", (roomName) => {
+socket.on("FAIL", (message) => showMessageModal(message));
+socket.on("ADD_ROOM_SUCCESS", (roomName) => onJoinRoom(roomName));
+
+const onJoinRoom = (roomName) => {
   socket.emit("JOIN_ROOM", roomName);
-});
+}
 
 const updateRooms = ({ roomName, numberOfUsers }) => {
   if (!roomName) {
@@ -72,6 +74,7 @@ const leaveRoomDone = () => {
 };
 
 socket.on("ADD_USER", appendUserElement);
+socket.on("REMOVE_USER", removeUserElement);
 
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
@@ -80,7 +83,7 @@ socket.on("ROOM_UPDATED", updateRooms);
 socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
 
 socket.on("LIST_ROOMS_RESPONSE", (list) => {
-  for (const [room, number] of list) {
-    updateRooms({ roomName: room, numberOfUsers: room });
+  for (const [room, users] of list) {
+    updateRooms({ roomName: room, numberOfUsers: users.length });
   }
 });

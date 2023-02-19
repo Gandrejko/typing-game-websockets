@@ -3,6 +3,7 @@ import { setupRoomsControls } from "./rooms";
 
 export default (io: Server) => {
   io.on("connection", (socket) => {
-    setupRoomsControls(socket, io);
+    const username = socket.handshake.query.username;
+    setupRoomsControls(socket, io, username);
   });
 };
