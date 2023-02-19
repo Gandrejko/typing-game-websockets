@@ -1,6 +1,7 @@
-import {showInputModal} from "./views/modal.mjs";
+import {showInputModal, showMessageModal} from "./views/modal.mjs";
 import {appendRoomElement} from "./views/room.mjs";
 import {addClass, removeClass} from "./helpers/domHelper.mjs";
+import {appendUserElement} from "./views/user.mjs";
 
 const username = sessionStorage.getItem('username');
 
@@ -24,11 +25,15 @@ const onSubmit = (inputModal) => {
 	socket.emit("ADD_ROOM", roomName);
 }
 
+const onJoinRoom = (roomName) => {
+	socket.emit("JOIN_ROOM", roomName)
+}
+
 const updateRooms = ({roomName, numberOfUsers}) => {
 	if(!roomName) {
 		return;
 	}
-	appendRoomElement({name: roomName, numberOfUsers: numberOfUsers})
+	appendRoomElement({name: roomName, numberOfUsers: numberOfUsers, onJoin: () => onJoinRoom(roomName)})
 }
 
 const joinRoomDone = (roomName) => {
@@ -42,13 +47,13 @@ const joinRoomDone = (roomName) => {
 	roomTitle.innerText = roomName;
 }
 
-const leaveRoom = () => {
+const onleaveRoom = () => {
 	const roomName = document.getElementById('room-name');
 	socket.emit("LEAVE_ROOM", roomName.innerText)
 }
 
 const quitRoomBtn = document.getElementById('quit-room-btn');
-quitRoomBtn.addEventListener('click', leaveRoom);
+quitRoomBtn.addEventListener('click', onleaveRoom);
 
 const leaveRoomDone = () => {
 	const gamePage = document.getElementById('game-page');
@@ -58,6 +63,9 @@ const leaveRoomDone = () => {
 	removeClass(roomsPage, 'display-none');
 }
 
+socket.on("ADD_USER", appendUserElement);
+
+socket.on("SHOW_MODAL", showMessageModal);
 socket.on("LEAVE_ROOM_DONE", leaveRoomDone);
 socket.on("JOIN_ROOM_DONE", joinRoomDone);
 socket.on("UPDATE_ROOMS", updateRooms);

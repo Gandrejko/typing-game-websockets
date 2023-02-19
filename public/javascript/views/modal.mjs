@@ -66,7 +66,6 @@ const showResultsModal = ({ usersSortedArray, onClose = () => {} }) => {
 
 const showMessageModal = ({ message, onClose = () => {} }) => {
 	const rootElement = document.querySelector('#root');
-
 	const modalElement = createModalElement(message);
 
 	const closeButton = createElement({
