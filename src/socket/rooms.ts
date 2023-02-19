@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import {MAXIMUM_USERS_FOR_ONE_ROOM} from "./config";
 
 const roomsMap = new Map();
 const numberOfUsersDefault = 0;
@@ -40,6 +41,10 @@ const listRooms = (socket) => {
   socket.emit("LIST_ROOMS_RESPONSE", [...roomsMap.entries()]);
 };
 
+const listUsers = (roomName, socket) => {
+  socket.emit("LIST_USERS_RESPONSE", roomsMap.get(roomName));
+}
+
 const deleteRoom = (roomName, server) => {
   roomsMap.delete(roomName);
   server.emit("ROOM_DELETED", { roomName });
@@ -61,16 +66,21 @@ const leaveRoom = (roomName, server, username) => {
   }
 };
 
-const joinRoom = (roomName, server, username) => {
+const joinRoom = ({roomName, server, socket, username}) => {
   if (!roomsMap.has(roomName)) {
     return;
   }
 
+  listUsers(roomName, socket);
   addUserToRoom(roomName, server, username);
 
   const currentCount = getUsersCount(roomName);
 
-  server.emit("ROOM_UPDATED", { roomName, numberOfUsers: currentCount });
+  if (currentCount === MAXIMUM_USERS_FOR_ONE_ROOM) {
+    server.emit("FULL_ROOM", roomName);
+  } else {
+    server.emit("ROOM_UPDATED", {roomName, numberOfUsers: currentCount});
+  }
 };
 
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
@@ -93,7 +103,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   socket.on("JOIN_ROOM", (roomName: string) => {
     socket.join(roomName);
 
-    joinRoom(roomName, server, username);
+    joinRoom({roomName, server, socket, username});
 
     socket.emit("JOIN_ROOM_SUCCESS", roomName);
   });

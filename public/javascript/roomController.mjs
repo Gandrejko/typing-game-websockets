@@ -57,13 +57,13 @@ const joinRoomDone = (roomName) => {
   roomTitle.innerText = roomName;
 };
 
-const onleaveRoom = () => {
+const onLeaveRoom = () => {
   const roomName = document.getElementById("room-name");
   socket.emit("LEAVE_ROOM", roomName.innerText);
 };
 
 const quitRoomBtn = document.getElementById("quit-room-btn");
-quitRoomBtn.addEventListener("click", onleaveRoom);
+quitRoomBtn.addEventListener("click", onLeaveRoom);
 
 const leaveRoomDone = () => {
   const gamePage = document.getElementById("game-page");
@@ -73,6 +73,8 @@ const leaveRoomDone = () => {
   removeClass(roomsPage, "display-none");
 };
 
+
+/*socket.on("FULL_ROOM", (roomName) => removeRoomElement(roomName))*/
 socket.on("ADD_USER", appendUserElement);
 socket.on("REMOVE_USER", removeUserElement);
 
@@ -85,8 +87,11 @@ socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
 socket.on("LIST_ROOMS_RESPONSE", (list) => {
   for (const [room, users] of list) {
     updateRooms({ roomName: room, numberOfUsers: users.length });
-    for (const user of users) {
-      appendUserElement(user);
-    }
+  }
+});
+
+socket.on("LIST_USERS_RESPONSE", (list) => {
+  for (const user of list) {
+    appendUserElement(user);
   }
 });
