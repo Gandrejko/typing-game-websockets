@@ -49,4 +49,6 @@ const getNumberOfUsersString = numberOfUsers => `${numberOfUsers} connected`;
 
 const removeRoomElement = name => document.querySelector(`.room[data-room-name='${name}']`)?.remove();
 
-export { appendRoomElement, updateNumberOfUsersInRoom, removeRoomElement };
+const roomExists = name => document.querySelector(`.room[data-room-name='${name}']`) !== null
+
+export { appendRoomElement, updateNumberOfUsersInRoom, removeRoomElement, roomExists };

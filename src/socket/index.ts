@@ -3,35 +3,55 @@ import { Server } from "socket.io";
 const roomsMap = new Map();
 const numberOfUsersDefault = 0;
 
-const updateRooms = (socket) => {
-  deleteVoidRooms();
-  roomsMap.forEach((numberOfUsers, roomName) => {
-    socket.emit("UPDATE_ROOMS", { roomName, numberOfUsers });
-    // socket.broadcast.emit("UPDATE_ROOMS", {roomName, numberOfUsers});
-  });
+const listRooms = (socket) => {
+	socket.emit("LIST_ROOMS_RESPONSE", [...roomsMap.entries()]);
 };
 
-const deleteVoidRooms = () => {
-  roomsMap.forEach((numberOfUsers, roomName) => {
-    if (roomName && numberOfUsers === 0) {
-      roomsMap.delete(roomName);
-    }
-  });
+const deleteRoom = (roomName, server) => {
+  roomsMap.delete(roomName);
+  server.emit("ROOM_DELETED", { roomName });
 };
 
-const updateNumberOfUsers = (roomName, joined) => {
-  const numberOfUsers = roomsMap.get(roomName);
-  const diff = joined ? 1 : -1;
-
-  if (numberOfUsers !== undefined) {
-    roomsMap.set(roomName, numberOfUsers + diff);
+const leaveRoom = (roomName, server) => {
+  if (!roomsMap.has(roomName)) {
+    return;
   }
+
+  const currentCount = roomsMap.get(roomName);
+
+  if (currentCount <= 0) {
+    deleteRoom(roomName, server);
+  }
+
+  const updatedCount = roomsMap.set(roomName, currentCount - 1).get(roomName);
+
+  if (updatedCount <= 0) {
+    deleteRoom(roomName, server);
+  } else {
+    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: updatedCount });
+  }
+};
+
+const joinRoom = (roomName, server) => {
+  if (!roomsMap.has(roomName)) {
+    return;
+  }
+
+  let currentCount = roomsMap.get(roomName);
+
+  if (currentCount <= 0) {
+    currentCount = 0;
+  }
+
+  const updatedCount = roomsMap.set(roomName, currentCount + 1).get(roomName);
+
+  server.emit("ROOM_UPDATED", { roomName, numberOfUsers: updatedCount });
 };
 
 export default (io: Server) => {
   io.on("connection", (socket) => {
-    const username = socket.handshake.query.username;
-    updateRooms(socket);
+    // const username = socket.handshake.query.username;
+    listRooms(socket);
 
     socket.on("ADD_ROOM", (roomName: string) => {
       if (roomsMap.has(roomName)) {
@@ -45,27 +65,26 @@ export default (io: Server) => {
 
       roomsMap.set(roomName, numberOfUsers);
 
-      socket.emit("UPDATE_ROOMS", { roomName, numberOfUsers });
+      io.emit("ROOM_UPDATED", { roomName, numberOfUsers });
+      socket.emit("ADD_ROOM_SUCCESS", {
+        roomName,
+      });
     });
 
-    socket.on("JOIN_ROOM", (roomName: string) => {
+    socket.on("JOIN_ROOM", ({ roomName }: {roomName: string}) => {
       socket.join(roomName);
-      // io.to(socket.id).emit("JOIN_ROOM_DONE", roomName);
-      socket.emit("JOIN_ROOM_DONE", roomName);
 
-      socket.emit("ADD_USER", { username, ready: false, isCurrentUser: true });
+      joinRoom(roomName, io);
 
-      updateNumberOfUsers(roomName, true);
-      updateRooms(socket);
+      socket.emit("JOIN_ROOM_SUCCESS", roomName);
     });
 
     socket.on("LEAVE_ROOM", (roomName: string) => {
       socket.leave(roomName);
-      // io.to(socket.id).emit("LEAVE_ROOM_DONE", roomName);
-      socket.emit("LEAVE_ROOM_DONE", roomName);
 
-      updateNumberOfUsers(roomName, false);
-      updateRooms(socket);
+      leaveRoom(roomName, io);
+
+      socket.emit("LEAVE_ROOM_SUCCESS", roomName);
     });
   });
 };
