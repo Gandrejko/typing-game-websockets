@@ -2,9 +2,8 @@ import { Server, Socket } from "socket.io";
 import {MAXIMUM_USERS_FOR_ONE_ROOM, SECONDS_TIMER_BEFORE_START_GAME} from "./config";
 
 const roomsMap = new Map();
-const numberOfUsersDefault = 0;
 
-const createNewUser = (username, ready = false, isCurrentUser = false) => {
+const createNewUser = ({username, ready = false, isCurrentUser = false}) => {
   return {username, ready: ready, isCurrentUser: isCurrentUser}
 }
 
@@ -33,8 +32,8 @@ const getUsersCount = (roomName) => {
   return roomsMap.get(roomName).length
 }
 
-const addUserToRoom = (roomName, server, username) => {
-  const newUser = createNewUser(username);
+const addUserToRoom = (roomName, server, socket, username) => {
+  const newUser = createNewUser({username});
   roomsMap.set(roomName, [...roomsMap.get(roomName), newUser]);
 }
 
@@ -84,7 +83,7 @@ const joinRoom = ({roomName, server, socket, username}) => {
   }
 
   listUsers(roomName, socket);
-  addUserToRoom(roomName, server, username);
+  addUserToRoom(roomName, server, socket, username);
 
   const currentCount = getUsersCount(roomName);
   if (currentCount >= MAXIMUM_USERS_FOR_ONE_ROOM) {
@@ -96,6 +95,9 @@ const joinRoom = ({roomName, server, socket, username}) => {
 
 export const checkUsersReady = (roomName) => {
   const users = roomsMap.get(roomName);
+  if(users === undefined || users.length <= 0) {
+    return false;
+  }
   return users.every(user => user.ready);
 }
 
@@ -122,8 +124,8 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
     socket.emit("JOIN_ROOM_SUCCESS", roomName);
 
-    const {ready, isCurrentUser} = findUser(username);
-    server.emit("ADD_USER", {roomName, username, ready, isCurrentUser});
+    const isCurrentUser = socket.handshake.query.username === username;
+    server.emit("ADD_USER", {roomName, username, ready: false, isCurrentUser});
   });
 
   socket.on("LEAVE_ROOM", (roomName: string) => {
@@ -155,6 +157,9 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   socket.on("disconnect", () => {
     const {roomName} = findUser(username);
     socket.leave(roomName);
-    leaveRoom(roomName, server, username)
+    leaveRoom(roomName, server, username);
+    if(checkUsersReady(roomName)) {
+      server.emit("START_TIMER_BEFORE_GAME", {roomName, time: SECONDS_TIMER_BEFORE_START_GAME});
+    }
   })
 };
