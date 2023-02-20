@@ -87,10 +87,18 @@ const onReadyChange = () => {
 const readyBtn = document.getElementById('ready-btn');
 readyBtn.addEventListener('click', onReadyChange);
 
+const addUser = ({roomName, username, ready, isCurrentUser}) => {
+  const roomTitle = document.getElementById('room-name');
+  if(roomName === roomTitle.innerText) {
+    appendUserElement({username, ready, isCurrentUser})
+  }
+
+}
+
 socket.on("CHANGE_READY_BTN", changeReadyStatusBtn);
 socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
 socket.on("FULL_ROOM", removeRoomElement);
-socket.on("ADD_USER", appendUserElement);
+socket.on("ADD_USER", addUser);
 socket.on("REMOVE_USER", removeUserElement);
 
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);

@@ -36,8 +36,6 @@ const getUsersCount = (roomName) => {
 const addUserToRoom = (roomName, server, username) => {
   const newUser = createNewUser(username);
   roomsMap.set(roomName, [...roomsMap.get(roomName), newUser]);
-
-  server.emit("ADD_USER", newUser);
 }
 
 const removeUserFromRoom = (roomName, server, username) => {
@@ -90,11 +88,7 @@ const joinRoom = ({roomName, server, socket, username}) => {
 
   const currentCount = getUsersCount(roomName);
 
-  if (currentCount === MAXIMUM_USERS_FOR_ONE_ROOM) {
-    server.emit("FULL_ROOM", roomName);
-  } else {
-    server.emit("ROOM_UPDATED", {roomName, numberOfUsers: currentCount});
-  }
+  server.emit("ROOM_UPDATED", {roomName, numberOfUsers: currentCount});
 };
 
 export const checkUsersReady = (roomName) => {
@@ -125,6 +119,9 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     joinRoom({roomName, server, socket, username});
 
     socket.emit("JOIN_ROOM_SUCCESS", roomName);
+
+    const {ready, isCurrentUser} = findUser(username);
+    server.emit("ADD_USER", {roomName, username, ready, isCurrentUser});
   });
 
   socket.on("LEAVE_ROOM", (roomName: string) => {

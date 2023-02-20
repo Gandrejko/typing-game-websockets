@@ -2,6 +2,7 @@ import { addClass } from '../helpers/domHelper.mjs';
 import { createElement } from '../helpers/domHelper.mjs';
 
 const appendUserElement = ({ username, ready, isCurrentUser }) => {
+	console.log(username, ready, isCurrentUser);
 	const usersContainer = document.querySelector('#users-wrapper');
 
 	const usernameElement = createElement({
