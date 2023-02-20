@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import {MAXIMUM_USERS_FOR_ONE_ROOM} from "./config";
+import {MAXIMUM_USERS_FOR_ONE_ROOM, SECONDS_TIMER_BEFORE_START_GAME} from "./config";
 
 const roomsMap = new Map();
 const numberOfUsersDefault = 0;
@@ -140,6 +140,10 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     const newUsers = roomsMap.get(roomName);
     newUsers[userIndex].ready = ready;
     roomsMap.set(roomName, newUsers);
+
+    if(checkUsersReady(roomName)) {
+      server.emit("START_TIMER_BEFORE_GAME", SECONDS_TIMER_BEFORE_START_GAME);
+    }
 
     server.emit("CHANGE_READY_SUCCESS", {username, ready})
     socket.emit("CHANGE_READY_BTN", {ready})
