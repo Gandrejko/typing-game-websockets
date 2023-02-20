@@ -15,6 +15,7 @@
   border: 1px solid var(--main-button-border-color);
   margin: 25px;
   margin-left: 20vw;
+  padding: 7vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -72,3 +73,37 @@
 .finished {
   background-color:greenyellow !important;
 }
+
+.success {
+  background-color: greenyellow;
+}
+
+.next {
+  position: relative;
+}
+
+.next:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  height: 90%;
+  width: 2px;
+  background-color: #333333;
+  animation: cursor 2s ease-in-out infinite;
+}
+
+letter {
+  display: inline;
+  padding-left: 1px;
+}
+
+@keyframes cursor {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+

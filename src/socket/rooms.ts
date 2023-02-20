@@ -142,7 +142,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     roomsMap.set(roomName, newUsers);
 
     if(checkUsersReady(roomName)) {
-      server.emit("START_TIMER_BEFORE_GAME", SECONDS_TIMER_BEFORE_START_GAME);
+      server.emit("START_TIMER_BEFORE_GAME", {roomName, time: SECONDS_TIMER_BEFORE_START_GAME});
     }
 
     server.emit("CHANGE_READY_SUCCESS", {username, ready})
