@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@300;400;500;600;700;800&display=swap');
+
 * {
-  font-family: "Open Sans", sans-serif;
+  font-family: "Shantell+Sans", cursive;
   line-height: normal;
   color: var(--main-font-color);
 }
