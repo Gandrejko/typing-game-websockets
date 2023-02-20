@@ -1,8 +1,4 @@
-const username = sessionStorage.getItem("username");
-
-if (!username) {
-  window.location.replace("/login");
-}
+import username from "./username.standalone.mjs"
 
 const socket = io("", { query: { username } });
 

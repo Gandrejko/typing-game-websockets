@@ -4,15 +4,29 @@ import {MAXIMUM_USERS_FOR_ONE_ROOM} from "./config";
 const roomsMap = new Map();
 const numberOfUsersDefault = 0;
 
-const findRoomByUsername = (username) => {
-  let room;
-  roomsMap.forEach((users, roomName) => {
+const createNewUser = (username, ready = false, isCurrentUser = false) => {
+  return {username, ready: ready, isCurrentUser: isCurrentUser}
+}
+
+const findIndexUserInRoom = (roomName, username) => {
+  const users = roomsMap.get(roomName);
+  const user = users.find(user => user.username === username);
+  return users.indexOf(user)
+}
+
+const findUser = (username) => {
+  let roomName, ready, isCurrentUser;
+  roomsMap.forEach((users, room) => {
     users.find(user => {
-      if(user.username === username) room = roomName;
+      if(user.username === username) {
+        roomName = room;
+        ready = user.ready;
+        isCurrentUser = user.isCurrentUser;
+      }
     });
   })
 
-  return room
+  return {roomName, ready, isCurrentUser}
 }
 
 const getUsersCount = (roomName) => {
@@ -20,7 +34,7 @@ const getUsersCount = (roomName) => {
 }
 
 const addUserToRoom = (roomName, server, username) => {
-  const newUser = {username, ready: false, isCurrentUser: true}
+  const newUser = createNewUser(username);
   roomsMap.set(roomName, [...roomsMap.get(roomName), newUser]);
 
   server.emit("ADD_USER", newUser);
@@ -116,8 +130,20 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
   })
 
+  socket.on("CHANGE_READY", (username) => {
+    const user = findUser(username);
+    const ready = !user.ready;
+    const roomName = user.roomName;
+    const userIndex = findIndexUserInRoom(roomName, username);
+    const newUsers = roomsMap.get(roomName);
+    newUsers[userIndex].ready = ready;
+    roomsMap.set(roomName, newUsers);
+    server.emit("CHANGE_READY_SUCCESS", {username, ready: ready})
+  })
+
+
   socket.on("disconnect", () => {
-    const roomName = findRoomByUsername(username);
+    const {roomName} = findUser(username);
     socket.leave(roomName);
     leaveRoom(roomName, server, username)
   })

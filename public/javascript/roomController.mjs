@@ -6,9 +6,10 @@ import {
   removeRoomElement,
 } from "./views/room.mjs";
 import { addClass, removeClass } from "./helpers/domHelper.mjs";
-import {appendUserElement, removeUserElement, userExists} from "./views/user.mjs";
+import {appendUserElement, changeReadyStatus, removeUserElement, userExists} from "./views/user.mjs";
 
 import socket from "./socket.standalone.mjs";
+import username from "./username.standalone.mjs";
 
 const addRoomBtn = document.getElementById("add-room-btn");
 
@@ -73,8 +74,15 @@ const leaveRoomDone = () => {
   removeClass(roomsPage, "display-none");
 };
 
+const onReadyChange = () => {
+  socket.emit("CHANGE_READY", username)
+}
 
-/*socket.on("FULL_ROOM", (roomName) => removeRoomElement(roomName))*/
+const readyBtn = document.getElementById('ready-btn');
+readyBtn.addEventListener('click', onReadyChange);
+
+socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
+socket.on("FULL_ROOM", removeRoomElement);
 socket.on("ADD_USER", appendUserElement);
 socket.on("REMOVE_USER", removeUserElement);
 
