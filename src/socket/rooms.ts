@@ -87,8 +87,11 @@ const joinRoom = ({roomName, server, socket, username}) => {
   addUserToRoom(roomName, server, username);
 
   const currentCount = getUsersCount(roomName);
-
-  server.emit("ROOM_UPDATED", {roomName, numberOfUsers: currentCount});
+  if (currentCount >= MAXIMUM_USERS_FOR_ONE_ROOM) {
+    server.emit("FULL_ROOM", roomName);
+  } else {
+    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: currentCount });
+  }
 };
 
 export const checkUsersReady = (roomName) => {
@@ -114,9 +117,8 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   });
 
   socket.on("JOIN_ROOM", (roomName: string) => {
-    socket.join(roomName);
-
     joinRoom({roomName, server, socket, username});
+    socket.join(roomName);
 
     socket.emit("JOIN_ROOM_SUCCESS", roomName);
 
