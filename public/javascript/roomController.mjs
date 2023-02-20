@@ -6,7 +6,13 @@ import {
   removeRoomElement,
 } from "./views/room.mjs";
 import { addClass, removeClass } from "./helpers/domHelper.mjs";
-import {appendUserElement, changeReadyStatus, removeUserElement, userExists} from "./views/user.mjs";
+import {
+  appendUserElement,
+  changeReadyStatus,
+  changeReadyStatusBtn,
+  removeUserElement,
+  userExists
+} from "./views/user.mjs";
 
 import socket from "./socket.standalone.mjs";
 import username from "./username.standalone.mjs";
@@ -81,6 +87,7 @@ const onReadyChange = () => {
 const readyBtn = document.getElementById('ready-btn');
 readyBtn.addEventListener('click', onReadyChange);
 
+socket.on("CHANGE_READY_BTN", changeReadyStatusBtn);
 socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
 socket.on("FULL_ROOM", removeRoomElement);
 socket.on("ADD_USER", appendUserElement);

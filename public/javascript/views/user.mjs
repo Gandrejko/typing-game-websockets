@@ -50,12 +50,15 @@ const appendUserElement = ({ username, ready, isCurrentUser }) => {
 };
 
 const changeReadyStatus = ({ username, ready }) => {
-	console.log(username, ready);
 	const readyStatusElement = document.querySelector(`.ready-status[data-username='${username}']`);
 	readyStatusElement.innerHTML = getReadySign(ready);
 	readyStatusElement.dataset.ready = Boolean(ready);
-
 };
+
+const changeReadyStatusBtn = ({ready}) => {
+	const readyBtnElement = document.getElementById('ready-btn');
+	readyBtnElement.innerText = ready ? 'NOT READY' : 'READY';
+}
 
 const setProgress = ({ username, progress }) => {
 	const progressElement = document.querySelector(`.user-progress[data-username='${username}']`);
@@ -74,4 +77,4 @@ const userExists = name => document.querySelector(`.user[data-username='${name}'
 
 const getReadySign = ready => (ready ? '🟢' : '🔴');
 
-export { appendUserElement, changeReadyStatus, setProgress, removeUserElement, userExists };
+export { appendUserElement, changeReadyStatus, setProgress, removeUserElement, userExists, changeReadyStatusBtn };

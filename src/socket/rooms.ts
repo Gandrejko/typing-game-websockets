@@ -97,6 +97,11 @@ const joinRoom = ({roomName, server, socket, username}) => {
   }
 };
 
+export const checkUsersReady = (roomName) => {
+  const users = roomsMap.get(roomName);
+  return users.every(user => user.ready);
+}
+
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
   listRooms(socket);
 
@@ -138,7 +143,9 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     const newUsers = roomsMap.get(roomName);
     newUsers[userIndex].ready = ready;
     roomsMap.set(roomName, newUsers);
-    server.emit("CHANGE_READY_SUCCESS", {username, ready: ready})
+
+    server.emit("CHANGE_READY_SUCCESS", {username, ready})
+    socket.emit("CHANGE_READY_BTN", {ready})
   })
 
 
