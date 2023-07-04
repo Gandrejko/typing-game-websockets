@@ -105,6 +105,12 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   listRooms(socket);
 
   socket.on("ADD_ROOM", (roomName: string) => {
+    if(roomName.trim().length === 0) {
+      socket.emit("FAIL", {
+        message: `Room name couldn't be empty`,
+      });
+      return;
+    }
     if (roomsMap.has(roomName)) {
       socket.emit("FAIL", {
         message: `Room with name "${roomName}" already exist`,
