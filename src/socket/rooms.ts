@@ -130,8 +130,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
     socket.emit("JOIN_ROOM_SUCCESS", roomName);
 
-    const isCurrentUser = socket.handshake.query.username === username;
-    server.emit("ADD_USER", {roomName, username, ready: false, isCurrentUser});
+    server.emit("ADD_USER", {roomName, username, ready: false});
   });
 
   socket.on("LEAVE_ROOM", (roomName: string) => {

@@ -15,7 +15,7 @@ import {
 } from "./views/user.mjs";
 
 import socket from "./socket.standalone.mjs";
-import username from "./username.standalone.mjs";
+import usernameSS from "./username.standalone.mjs";
 
 const addRoomBtn = document.getElementById("add-room-btn");
 
@@ -81,14 +81,15 @@ const leaveRoomDone = () => {
 };
 
 const onReadyChange = () => {
-  socket.emit("CHANGE_READY", username)
+  socket.emit("CHANGE_READY", usernameSS)
 }
 
 const readyBtn = document.getElementById('ready-btn');
 readyBtn.addEventListener('click', onReadyChange);
 
-const addUser = ({roomName, username, ready, isCurrentUser}) => {
+const addUser = ({roomName, username, ready}) => {
   const roomTitle = document.getElementById('room-name');
+  const isCurrentUser = usernameSS === username;
   if(roomName === roomTitle.innerText) {
     appendUserElement({username, ready, isCurrentUser})
   }

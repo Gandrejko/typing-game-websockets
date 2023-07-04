@@ -1,7 +1,7 @@
-const username = sessionStorage.getItem("username");
+const usernameSS = sessionStorage.getItem("username");
 
-if (!username) {
+if (!usernameSS) {
 	window.location.replace("/login");
 }
 
-export default username;
+export default usernameSS;
