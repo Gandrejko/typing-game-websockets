@@ -13,11 +13,7 @@ export default (io: Server) => {
     setupRoomsControls(socket, io, username);
 
     socket.on("START_GAME", (roomName) => {
-      socket.emit("START_GAME_SUCCESS", {randomNumber: createRandomNumber(), time: SECONDS_FOR_GAME})
-    })
-
-    socket.on("PROGRESS_UPDATED", (progress) => {
-      io.emit("PROGRESS_UPDATED_SUCCESS", {username, progress})
+      socket.emit("START_GAME_SUCCESS", {randomNumber: createRandomNumber(), gameDuration: SECONDS_FOR_GAME})
     })
   });
 };

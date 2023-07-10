@@ -1,4 +1,4 @@
-import { showInputModal, showMessageModal } from "./views/modal.mjs";
+import {showInputModal, showMessageModal, showResultsModal} from './views/modal.mjs';
 import {
   appendRoomElement,
   roomExists,
@@ -96,6 +96,8 @@ const addUser = ({roomName, username, ready}) => {
 
 }
 
+
+
 socket.on("CHANGE_READY_BTN", changeReadyStatusBtn);
 socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
 socket.on("FULL_ROOM", removeRoomElement);
@@ -105,6 +107,7 @@ socket.on("REMOVE_USER", removeUserElement);
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("ROOM_UPDATED", updateRooms);
+socket.on("GAME_FINISHED_SUCCESS", showResultsModal)
 
 socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
 
@@ -121,3 +124,5 @@ socket.on("LIST_USERS_RESPONSE", (list) => {
     }
   }
 });
+
+

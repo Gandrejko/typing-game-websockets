@@ -4,7 +4,12 @@ import {MAXIMUM_USERS_FOR_ONE_ROOM, SECONDS_TIMER_BEFORE_START_GAME} from "./con
 const roomsMap = new Map();
 
 const createNewUser = ({username, ready = false, isCurrentUser = false}) => {
-  return {username, ready: ready, isCurrentUser: isCurrentUser}
+  return {
+    username,
+    ready: ready,
+    isCurrentUser: isCurrentUser,
+    speed: null
+  }
 }
 
 const findIndexUserInRoom = (roomName, username) => {
@@ -158,6 +163,35 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     socket.emit("CHANGE_READY_BTN", {ready})
   })
 
+  socket.on("PROGRESS_UPDATED", (progress) => {
+    server.emit("PROGRESS_UPDATED_SUCCESS", {username, progress})
+  })
+
+  socket.on("PLAYER_FINISHED", ({lettersCount, time}) => {
+    const { roomName } = findUser(username);
+    const room = roomsMap.get(roomName);
+    const updatedRoom = room.map(user => {
+      if(user.username == username) {
+        user = {
+          ...user,
+          speed: +(lettersCount / time).toFixed(2)
+        }
+      }
+
+      return user
+    });
+
+    roomsMap.set(roomName, updatedRoom);
+
+    if(roomsMap.get(roomName).every(user => user.speed !== null)) {
+      server.emit("GAME_FINISHED_SUCCESS", {usersSortedArray: roomsMap.get(roomName).sort((a, b) => b.speed - a.speed).map(user => user.username)})
+    }
+  })
+
+  socket.on("GAME_FINISHED", () => {
+    const { roomName } = findUser(username);
+    server.emit("GAME_FINISHED_SUCCESS", {usersSortedArray: roomsMap.get(roomName).sort((a, b) => b.speed - a.speed).map(user => user.username)})
+  })
 
   socket.on("disconnect", () => {
     const {roomName} = findUser(username);

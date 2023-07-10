@@ -1,7 +1,9 @@
-import {addClass, removeClass} from "./helpers/domHelper.mjs";
-import {setProgress} from "./views/user.mjs";
+import {addClass, removeClass} from './helpers/domHelper.mjs';
+import {setProgress} from './views/user.mjs';
 
-import socket from "./socket.standalone.mjs";
+import socket from './socket.standalone.mjs';
+
+let time = 0;
 
 const removeBtns = () => {
 	const quitRoomBtn = document.getElementById("quit-room-btn");
@@ -43,14 +45,12 @@ const setupText = (text = '') => {
 const calcProgressBar = (text) => {
 	const letterElements = document.querySelectorAll('letter.success');
 	const countSuccessLetters = letterElements.length;
-	const progress = (countSuccessLetters / text.length) * 100;
-
-	return progress
+	return (countSuccessLetters / text.length) * 100
 }
 
-const startGame = async ({randomNumber, time}) => {
-	const text = await getText(randomNumber);
-	await startTimer({time, text});
+const startGame = async ({randomNumber, gameDuration}) => {
+	const text = await getText(0);
+	await startTimer({gameDuration, text});
 	setupText(text);
 	const letters = document.querySelectorAll('letter');
 	let currIndex = 0;
@@ -78,7 +78,11 @@ const startGame = async ({randomNumber, time}) => {
 		} else if(key === letters[currIndex].innerHTML) {
 			removeClass(letters[currIndex], 'next');
 			addClass(letters[currIndex], 'success');
-			socket.emit("PROGRESS_UPDATED", calcProgressBar(text))
+			const progress = calcProgressBar(text);
+			socket.emit("PROGRESS_UPDATED", progress);
+			if(progress === 100) {
+				socket.emit("PLAYER_FINISHED", { lettersCount: text.length, time });
+			}
 
 		} else {
 			return
@@ -88,7 +92,7 @@ const startGame = async ({randomNumber, time}) => {
 	})
 }
 
-const startTimer = ({time}) => {
+const startTimer = ({gameDuration, text}) => {
 	const gameTimerElement = document.getElementById('game-timer');
 	const gameTimerValue = document.getElementById('game-timer-seconds');
 
@@ -98,13 +102,15 @@ const startTimer = ({time}) => {
 	addClass(timerElement, 'display-none');
 	removeClass(gameTimerElement, 'display-none');
 
-	let currTime = time;
-	gameTimerValue.innerText = currTime;
+	let currTime = gameDuration - time;
+	gameTimerValue.innerText = currTime.toString();
 	const timer = setInterval(() => {
-		currTime--;
+		time++;
+		currTime = gameDuration - time;
 		gameTimerValue.innerText = currTime;
 		if(currTime <= 0) {
 			clearInterval(timer);
+			socket.emit("GAME_FINISHED", { lettersCount: text.length, time });
 		}
 	}, 1000)
 }
