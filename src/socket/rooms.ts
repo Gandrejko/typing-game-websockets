@@ -142,6 +142,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     socket.leave(roomName);
 
     leaveRoom(roomName, server, username);
+    console.log(roomsMap.get(roomName));
 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
   })
@@ -183,6 +184,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
     roomsMap.set(roomName, updatedRoom);
 
+    socket.emit("PLAYER_FINISHED_SUCCESS");
     if(roomsMap.get(roomName).every(user => user.speed !== null)) {
       server.emit("GAME_FINISHED_SUCCESS", {usersSortedArray: roomsMap.get(roomName).sort((a, b) => b.speed - a.speed).map(user => user.username)})
     }

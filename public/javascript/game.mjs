@@ -57,7 +57,7 @@ const startGame = async ({ gameDuration }) => {
 	setupText(text);
 	const letters = document.querySelectorAll('.letter');
 	let currIndex = 0;
-	window.addEventListener('keydown', (e) => {
+	const typeEvent = (e) => {
 		const letterKeys = [
 			'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
 			'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
@@ -92,7 +92,10 @@ const startGame = async ({ gameDuration }) => {
 		}
 		letters[currIndex + 1] && addClass(letters[currIndex + 1], 'next');
 		currIndex++;
-	})
+	}
+	window.addEventListener('keydown', typeEvent);
+	socket.on("GAME_FINISHED_SUCCESS", () => removeEventListener('keydown', typeEvent));
+	socket.on("PLAYER_FINISHED_SUCCESS", () => removeEventListener('keydown', typeEvent));
 }
 
 const startTimer = ({gameDuration, text}) => {
