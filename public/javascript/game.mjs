@@ -112,6 +112,7 @@ const startTimer = ({gameDuration, text}) => {
 			clearInterval(timer);
 			socket.emit("GAME_FINISHED", { lettersCount: text.length, time });
 		}
+		socket.on("GAME_FINISHED_SUCCESS", () => clearInterval(timer));
 	}, 1000)
 }
 

@@ -1,4 +1,5 @@
 export const texts = [
+  "hello",
   "The sky was a deep shade of blue, the kind that lingered just before the sun began to set. As she walked down the street, the sound of her heels echoed in the empty spaces between buildings. She couldn't help but feel a sense of unease, as if she was being watched. With each step, her heart beat a little faster.",
   "The rain was relentless, tapping at the windowpanes like an impatient visitor. She wrapped herself in a blanket and sipped her tea, watching the world turn grey outside. It was a day for curling up with a good book, for shutting out the noise of the world and getting lost in another world.",
   "The waves crashed against the shore, a constant reminder of the power of the sea. She breathed in the salty air and felt the sand between her toes, grateful for the escape from the city. There was something cleansing about the ocean, something that made her feel small in the best possible way.",

@@ -96,7 +96,9 @@ const addUser = ({roomName, username, ready}) => {
 
 }
 
-
+const finishGame = ({ usersSortedArray }) => {
+  showResultsModal({ usersSortedArray });
+}
 
 socket.on("CHANGE_READY_BTN", changeReadyStatusBtn);
 socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
@@ -107,7 +109,7 @@ socket.on("REMOVE_USER", removeUserElement);
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("ROOM_UPDATED", updateRooms);
-socket.on("GAME_FINISHED_SUCCESS", showResultsModal)
+socket.on("GAME_FINISHED_SUCCESS", finishGame);
 
 socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
 
