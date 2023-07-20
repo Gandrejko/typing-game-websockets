@@ -1,11 +1,11 @@
-import {addClass, removeClass} from './helpers/domHelper.mjs';
+import { addClass, createElement, removeClass } from './helpers/domHelper.mjs';
 import {setProgress} from './views/user.mjs';
 
 import socket from './socket.standalone.mjs';
 
 let time = 0;
 
-const removeBtns = () => {
+const removeButtons = () => {
 	const quitRoomBtn = document.getElementById("quit-room-btn");
 	const readyBtn = document.getElementById('ready-btn');
 
@@ -16,7 +16,7 @@ const removeBtns = () => {
 const startTimerBeforeGame = ({roomName, time}) => {
 	const timerElement = document.getElementById('timer');
 	removeClass(timerElement, 'display-none');
-	removeBtns();
+	removeButtons();
 
 	let currTime = time;
 	timerElement.innerText = currTime;
@@ -36,23 +36,26 @@ const setupText = (text = '') => {
 	textContainer.innerHTML = '';
 
 	text.split('').map(letter => {
-		const letterElement = document.createElement('letter');
-		letterElement.innerText = letter;
+		const letterElement = createElement({
+			tagName: "span",
+			className: "letter",
+			innerElements: [letter],
+		});
 		textContainer.append(letterElement);
 	})
 }
 
 const calcProgressBar = (text) => {
-	const letterElements = document.querySelectorAll('letter.success');
+	const letterElements = document.querySelectorAll('.letter.success');
 	const countSuccessLetters = letterElements.length;
 	return (countSuccessLetters / text.length) * 100
 }
 
-const startGame = async ({randomNumber, gameDuration}) => {
+const startGame = async ({ gameDuration }) => {
 	const text = await getText(0);
 	await startTimer({gameDuration, text});
 	setupText(text);
-	const letters = document.querySelectorAll('letter');
+	const letters = document.querySelectorAll('.letter');
 	let currIndex = 0;
 	window.addEventListener('keydown', (e) => {
 		const letterKeys = [
