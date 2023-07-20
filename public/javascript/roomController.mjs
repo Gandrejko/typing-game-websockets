@@ -95,8 +95,28 @@ const addUser = ({roomName, username, ready}) => {
   }
 }
 
-const finishGame = ({ usersSortedArray }) => {
-  showResultsModal({ usersSortedArray });
+const addButtons = () => {
+  const quitRoomBtn = document.getElementById("quit-room-btn");
+  const readyBtn = document.getElementById('ready-btn');
+
+  removeClass(quitRoomBtn, 'display-none');
+  removeClass(readyBtn, 'display-none');
+}
+
+const finishGame = ({ usersSortedArray, roomName }) => {
+  const textContainer = document.getElementById('text-container');
+  const timerElement = document.getElementById('game-timer');
+
+  addClass(textContainer, 'display-none');
+  addClass(timerElement, 'display-none');
+  showResultsModal({ usersSortedArray, onClose: addButtons });
+
+  usersSortedArray.forEach(username => {
+    removeUserElement(username);
+    addUser({roomName, username, ready: false});
+    changeReadyStatus({username, ready: false})
+    changeReadyStatusBtn({ready: false})
+  })
 }
 
 socket.on("CHANGE_READY_BTN", changeReadyStatusBtn);

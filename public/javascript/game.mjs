@@ -107,7 +107,7 @@ const startTimer = ({gameDuration, text}) => {
 
 	addClass(timerElement, 'display-none');
 	removeClass(gameTimerElement, 'display-none');
-
+	time = 0;
 	let currTime = gameDuration - time;
 	gameTimerValue.innerText = currTime.toString();
 	const timer = setInterval(() => {

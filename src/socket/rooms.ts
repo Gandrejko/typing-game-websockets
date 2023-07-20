@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { getSortedUsers } from '../helpers/get-sorted-users';
+import { resetPlayers } from '../helpers/reset-players';
 import {MAXIMUM_USERS_FOR_ONE_ROOM, SECONDS_TIMER_BEFORE_START_GAME} from "./config";
 
 const roomsMap = new Map();
@@ -12,6 +13,7 @@ const createNewUser = ({username, ready = false, isCurrentUser = false}) => {
     speed: null
   }
 }
+
 
 const findIndexUserInRoom = (roomName, username) => {
   const users = roomsMap.get(roomName);
@@ -186,14 +188,21 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
     socket.emit("PLAYER_FINISHED_SUCCESS");
     if(roomsMap.get(roomName).every(user => user.speed !== null)) {
-      server.in(roomName).emit("GAME_FINISHED_SUCCESS", {usersSortedArray: getSortedUsers(roomsMap.get(roomName))})
+      const room = roomsMap.get(roomName);
+      server.in(roomName).emit("GAME_FINISHED_SUCCESS", {usersSortedArray: getSortedUsers(room), roomName});
+      const updatedRoom = resetPlayers(room);
+      roomsMap.set(roomName, updatedRoom);
     }
   })
 
   socket.on("GAME_FINISHED", () => {
     const { roomName } = findUser(username);
-    server.in(roomName).emit("GAME_FINISHED_SUCCESS", {usersSortedArray: getSortedUsers(roomsMap.get(roomName))})
+    const room = roomsMap.get(roomName);
+    server.in(roomName).emit("GAME_FINISHED_SUCCESS", {usersSortedArray: getSortedUsers(room), roomName});
+    const updatedRoom = resetPlayers(room);
+    roomsMap.set(roomName, updatedRoom);
   })
+
 
   socket.on("disconnect", () => {
     const {roomName} = findUser(username);
