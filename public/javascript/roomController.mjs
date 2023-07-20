@@ -93,7 +93,6 @@ const addUser = ({roomName, username, ready}) => {
   if(roomName === roomTitle.innerText) {
     appendUserElement({username, ready, isCurrentUser})
   }
-
 }
 
 const finishGame = ({ usersSortedArray }) => {
@@ -126,5 +125,3 @@ socket.on("LIST_USERS_RESPONSE", (list) => {
     }
   }
 });
-
-
