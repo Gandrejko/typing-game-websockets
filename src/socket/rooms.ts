@@ -3,102 +3,17 @@ import { createRandomNumber } from '../helpers/create-random-number';
 import { getSortedUsers } from '../helpers/get-sorted-users';
 import { resetPlayers } from '../helpers/reset-players';
 import { findRoomName } from '../helpers/room/find-room-name';
+import { joinRoom } from '../helpers/room/join-room';
+import { leaveRoom } from '../helpers/room/leave-room';
 import { setPlayerSpeed } from '../helpers/set-player-speed';
 import { getRoomsMap } from '../helpers/states';
+import { checkUsersReady } from '../helpers/user/check-users-ready';
 import { findUser, findUserIndex } from '../helpers/user/find-user';
-import { MAXIMUM_USERS_FOR_ONE_ROOM, SECONDS_FOR_GAME, SECONDS_TIMER_BEFORE_START_GAME } from "./config";
-
-const createNewUser = ({username, ready = false, isCurrentUser = false}) => {
-  return {
-    username,
-    ready: ready,
-    isCurrentUser: isCurrentUser,
-    speed: null
-  }
-}
-
-const getUsersCount = (roomName) => {
-  return getRoomsMap().get(roomName)?.length || 0
-}
-
-const addUserToRoom = (roomName, server, socket, username) => {
-  const newUser = createNewUser({username});
-  const roomUsers = getRoomsMap().get(roomName);
-  if(!roomUsers) {
-    return;
-  }
-  getRoomsMap().set(roomName, [...roomUsers, newUser]);
-}
-
-const removeUserFromRoom = (roomName, server, username) => {
-  const roomUsers = getRoomsMap().get(roomName);  if(!roomUsers) {
-    return;
-  }
-
-  const index = roomUsers.findIndex(n => n.username === username);
-  if (index !== -1) {
-    roomUsers.splice(index, 1);
-  }
-  getRoomsMap().set(roomName, roomUsers);
-
-  server.emit("REMOVE_USER", username)
-}
-
-const listRooms = (socket) => {
-  socket.emit("LIST_ROOMS_RESPONSE", [...getRoomsMap().entries()]);
-};
-
-const listUsers = (roomName, socket) => {
-  socket.emit("LIST_USERS_RESPONSE", getRoomsMap().get(roomName));
-}
-
-const deleteRoom = (roomName, server) => {
-  getRoomsMap().delete(roomName);
-  server.emit("ROOM_DELETED", { roomName });
-};
-
-const leaveRoom = (roomName, server, username) => {
-  if (!getRoomsMap().has(roomName)) {
-    return;
-  }
-
-  removeUserFromRoom(roomName, server, username);
-
-  const currentCount = getUsersCount(roomName);
-
-  if (currentCount <= 0) {
-    deleteRoom(roomName, server);
-  } else {
-    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: currentCount });
-  }
-};
-
-const joinRoom = ({roomName, server, socket, username}) => {
-  if (!getRoomsMap().has(roomName)) {
-    return;
-  }
-
-  listUsers(roomName, socket);
-  addUserToRoom(roomName, server, socket, username);
-
-  const currentCount = getUsersCount(roomName);
-  if (currentCount >= MAXIMUM_USERS_FOR_ONE_ROOM) {
-    server.emit("FULL_ROOM", roomName);
-  } else {
-    server.emit("ROOM_UPDATED", { roomName, numberOfUsers: currentCount });
-  }
-};
-
-export const checkUsersReady = (roomName) => {
-  const users = getRoomsMap().get(roomName);
-  if(users === undefined || users.length <= 0) {
-    return false;
-  }
-  return users.every(user => user.ready);
-}
+import { getUsersCount } from '../helpers/user/get-users-count';
+import { SECONDS_FOR_GAME, SECONDS_TIMER_BEFORE_START_GAME } from "./config";
 
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
-  listRooms(socket);
+  socket.emit("LIST_ROOMS_RESPONSE", [...getRoomsMap().entries()]);
 
   socket.on("ADD_ROOM", (roomName: string) => {
     if(roomName.trim().length === 0) {
