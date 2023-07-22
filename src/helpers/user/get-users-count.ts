@@ -1,5 +1,5 @@
-import { getRoomsMap } from '../states';
+import { getRoomUsers } from './index';
 
 export const getUsersCount = (roomName) => {
-	return getRoomsMap().get(roomName)?.length || 0
+	return getRoomUsers(roomName)?.length || 0
 }

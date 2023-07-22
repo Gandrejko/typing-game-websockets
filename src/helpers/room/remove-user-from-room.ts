@@ -1,7 +1,9 @@
-import { getRoomsMap } from '../states';
+import { getRoomUsers, setRoomUsers } from '../user';
+
 
 export const removeUserFromRoom = (roomName, server, username) => {
-	const roomUsers = getRoomsMap().get(roomName);  if(!roomUsers) {
+	const roomUsers = getRoomUsers(roomName);
+	if(!roomUsers) {
 		return;
 	}
 
@@ -9,7 +11,7 @@ export const removeUserFromRoom = (roomName, server, username) => {
 	if (index !== -1) {
 		roomUsers.splice(index, 1);
 	}
-	getRoomsMap().set(roomName, roomUsers);
+	setRoomUsers(roomName, roomUsers);
 
 	server.emit("REMOVE_USER", username)
 }

@@ -1,11 +1,11 @@
-import { getRoomsMap } from '../states';
 import { createUser } from '../user/create-user';
+import { getRoomUsers, setRoomUsers } from '../user';
 
 export const addUserToRoom = (roomName, server, socket, username) => {
 	const newUser = createUser({username});
-	const roomUsers = getRoomsMap().get(roomName);
+	const roomUsers = getRoomUsers(roomName);
 	if(!roomUsers) {
 		return;
 	}
-	getRoomsMap().set(roomName, [...roomUsers, newUser]);
+	setRoomUsers(roomName, [...roomUsers, newUser]);
 }

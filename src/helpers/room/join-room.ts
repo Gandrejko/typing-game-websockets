@@ -1,5 +1,6 @@
+import { getRoomsMap } from '../../socket';
 import { MAXIMUM_USERS_FOR_ONE_ROOM } from '../../socket/config';
-import { getRoomsMap } from '../states';
+import { getRoomUsers } from '../user';
 import { getUsersCount } from '../user/get-users-count';
 import { addUserToRoom } from './add-user-to-room';
 
@@ -8,7 +9,7 @@ export const joinRoom = ({roomName, server, socket, username}) => {
 		return;
 	}
 
-	socket.emit("LIST_USERS_RESPONSE", getRoomsMap().get(roomName));
+	socket.emit("LIST_USERS_RESPONSE", getRoomUsers(roomName));
 	addUserToRoom(roomName, server, socket, username);
 
 	const currentCount = getUsersCount(roomName);

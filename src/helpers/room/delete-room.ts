@@ -1,4 +1,4 @@
-import { getRoomsMap } from '../states';
+import { getRoomsMap } from '../../socket';
 
 export const deleteRoom = (roomName, server) => {
 	getRoomsMap().delete(roomName);

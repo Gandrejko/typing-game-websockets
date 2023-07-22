@@ -4,5 +4,10 @@ export type User = {
 	speed: number | null,
 }
 
-export type RoomsMap = Map<string, User[]>;
+export type Room = {
+	users: User[],
+	time: number,
+}
+
+export type RoomsMap = Map<string, Room>;
 

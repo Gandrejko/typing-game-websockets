@@ -1,9 +1,9 @@
-import { getRoomsMap } from '../states';
+import { getRoomUsers } from './index';
 
-export const checkUsersReady = (roomName) => {
-	const users = getRoomsMap().get(roomName);
-	if(users === undefined || users.length <= 0) {
+export const checkUsersReady = (roomName: string) => {
+	const roomUser = getRoomUsers(roomName);
+	if(roomUser === undefined || roomUser.length <= 0) {
 		return false;
 	}
-	return users.every(user => user.ready);
+	return roomUser.every(user => user.ready);
 }
