@@ -53,7 +53,7 @@ const calcProgressBar = (text) => {
 
 const startGame = async ({ gameDuration }) => {
 	const text = await getText(0);
-	await startTimer({gameDuration, text});
+	startTimer({gameDuration, text});
 	setupText(text);
 	const letters = document.querySelectorAll('.letter');
 	let currIndex = 0;
@@ -103,7 +103,6 @@ const startTimer = ({gameDuration, text}) => {
 	const gameTimerValue = document.getElementById('game-timer-seconds');
 
 	const timerElement = document.getElementById('timer');
-
 
 	addClass(timerElement, 'display-none');
 	removeClass(gameTimerElement, 'display-none');

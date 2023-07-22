@@ -1,14 +1,8 @@
-export type Username = string;
-
-export type RoomName = string;
-
 export type User = {
-	username: Username,
+	username: string,
 	ready: boolean,
 	speed: number | null,
 }
 
-export type Room = User[];
-
-export type RoomsMap = Map<RoomName, Room>;
+export type RoomsMap = Map<string, User[]>;
 

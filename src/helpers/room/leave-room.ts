@@ -3,7 +3,7 @@ import { getUsersCount } from '../user/get-users-count';
 import { deleteRoom } from './delete-room';
 import { removeUserFromRoom } from './remove-user-from-room';
 
-export const leaveRoom = (roomName, server, username) => {
+export const leaveRoom = ({roomName, server, username}) => {
 	if (!getRoomsMap().has(roomName)) {
 		return;
 	}

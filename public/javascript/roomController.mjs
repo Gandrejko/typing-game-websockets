@@ -72,7 +72,7 @@ const onLeaveRoom = () => {
 const quitRoomBtn = document.getElementById("quit-room-btn");
 quitRoomBtn.addEventListener("click", onLeaveRoom);
 
-const leaveRoomDone = () => {
+const leaveRoom = () => {
   const gamePage = document.getElementById("game-page");
   const roomsPage = document.getElementById("rooms-page");
 
@@ -125,7 +125,7 @@ socket.on("FULL_ROOM", removeRoomElement);
 socket.on("ADD_USER", addUser);
 socket.on("REMOVE_USER", removeUserElement);
 
-socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
+socket.on("LEAVE_ROOM_SUCCESS", leaveRoom);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("ROOM_UPDATED", updateRooms);
 socket.on("GAME_FINISHED_SUCCESS", finishGame);

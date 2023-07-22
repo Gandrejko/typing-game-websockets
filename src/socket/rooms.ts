@@ -47,7 +47,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   socket.on("LEAVE_ROOM", (roomName: string) => {
     socket.leave(roomName);
 
-    leaveRoom(roomName, server, username);
+    leaveRoom({roomName, server, username});
 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
   })
@@ -68,6 +68,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     if(checkUsersReady(roomName)) {
       server.emit("START_TIMER_BEFORE_GAME", {roomName, time: SECONDS_TIMER_BEFORE_START_GAME});
     }
+
 
     server.emit("CHANGE_READY_SUCCESS", {username, ready: newReady})
     socket.emit("CHANGE_READY_BTN", {ready: newReady})
@@ -107,10 +108,9 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     getRoomsMap().set(roomName, resetedRoom);
   })
 
-
   socket.on("disconnect", () => {
     const roomName = findRoomName(username);
     socket.leave(roomName);
-    leaveRoom(roomName, server, username);
+    leaveRoom({roomName, server, username});
   })
 };
