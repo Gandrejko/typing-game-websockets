@@ -1,8 +1,9 @@
+import { SECONDS_FOR_GAME } from '../socket/config';
 import { Room, User } from '../types';
 
 export const defaultRoom: Room = {
 	users: [],
-	time: 0
+	time: SECONDS_FOR_GAME
 }
 
 export const defaultUser: User = {

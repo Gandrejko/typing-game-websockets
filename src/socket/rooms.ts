@@ -1,16 +1,16 @@
 import { Server, Socket } from "socket.io";
-import { createRandomNumber } from '../helpers/create-random-number';
+import { defaultRoom } from '../constants';
 import { getSortedUsers } from '../helpers/get-sorted-users';
 import { resetPlayers } from '../helpers/reset-players';
-import { getRoom, setRoom } from '../helpers/room';
+import { setRoom } from '../helpers/room';
 import { findRoomName } from '../helpers/room/find-room-name';
 import { joinRoom } from '../helpers/room/join-room';
 import { leaveRoom } from '../helpers/room/leave-room';
+import { startTimerBeforeGame } from '../helpers/room/start-timer-before-game';
 import { setPlayerSpeed } from '../helpers/set-player-speed';
 import { getRoomUsers, getUser, getUserIndex, setRoomUsers } from '../helpers/user';
 import { checkUsersReady } from '../helpers/user/check-users-ready';
 import { getUsersCount } from '../helpers/user/get-users-count';
-import { SECONDS_FOR_GAME, SECONDS_TIMER_BEFORE_START_GAME } from "./config";
 import { getRoomsMap } from './index';
 
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
@@ -30,7 +30,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
       return;
     }
 
-    setRoom(roomName, { users: [], time: 0 });
+    setRoom(roomName, defaultRoom);
 
     server.emit("ROOM_UPDATED", { roomName, numberOfUsers: getUsersCount(roomName) });
     socket.emit("ADD_ROOM_SUCCESS", roomName);
@@ -67,9 +67,10 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     setRoomUsers(roomName, newUsers)
 
     if(checkUsersReady(roomName)) {
-      server.emit("START_TIMER_BEFORE_GAME", {roomName, time: SECONDS_TIMER_BEFORE_START_GAME});
-    }
+      server.emit("ALL_PLAYERS_READY");
+      startTimerBeforeGame(roomName, socket);
 
+    }
 
     server.emit("CHANGE_READY_SUCCESS", {username, ready: newReady})
     socket.emit("CHANGE_READY_BTN", {ready: newReady})
@@ -78,10 +79,6 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   socket.on("PROGRESS_UPDATED", (progress) => {
     server.emit("PROGRESS_UPDATED_SUCCESS", {username, progress})
   });
-
-  socket.on("START_GAME", (roomName) => {
-    socket.emit("START_GAME_SUCCESS", {randomNumber: createRandomNumber(), gameDuration: SECONDS_FOR_GAME})
-  })
 
   socket.on("PLAYER_FINISHED", ({lettersCount, time}) => {
     const roomName = findRoomName(username);

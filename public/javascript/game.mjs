@@ -13,21 +13,10 @@ const removeButtons = () => {
 	addClass(readyBtn, 'display-none');
 }
 
-const startTimerBeforeGame = ({roomName, time}) => {
+const startTimerBeforeGame = () => {
 	const timerElement = document.getElementById('timer');
 	removeClass(timerElement, 'display-none');
 	removeButtons();
-
-	let currTime = time;
-	timerElement.innerText = currTime;
-	const timer = setInterval(() => {
-		currTime--;
-		timerElement.innerText = currTime;
-		if(currTime <= 0) {
-			clearInterval(timer);
-			socket.emit("START_GAME", roomName)
-		}
-	}, 1000)
 }
 
 const setupText = (text = '') => {
@@ -51,9 +40,21 @@ const calcProgressBar = (text) => {
 	return (countSuccessLetters / text.length) * 100
 }
 
-const startGame = async ({ gameDuration }) => {
-	const text = await getText(0);
-	startTimer({gameDuration, text});
+const hidePreGameTimer = () => {
+	const timerElement = document.getElementById('timer');
+
+	addClass(timerElement, 'display-none');
+}
+
+const showGameTimer = () => {
+	const gameTimerElement = document.getElementById('game-timer');
+
+	removeClass(gameTimerElement, 'display-none');
+}
+
+const startGame = ({ text }) => {
+	hidePreGameTimer();
+	showGameTimer();
 	setupText(text);
 	const letters = document.querySelectorAll('.letter');
 	let currIndex = 0;
@@ -98,38 +99,20 @@ const startGame = async ({ gameDuration }) => {
 	socket.on("PLAYER_FINISHED_SUCCESS", () => removeEventListener('keydown', typeEvent));
 }
 
-const startTimer = ({gameDuration, text}) => {
-	const gameTimerElement = document.getElementById('game-timer');
-	const gameTimerValue = document.getElementById('game-timer-seconds');
-
+const updateTimerBeforeGame = ({ time }) => {
 	const timerElement = document.getElementById('timer');
 
-	addClass(timerElement, 'display-none');
-	removeClass(gameTimerElement, 'display-none');
-	time = 0;
-	let currTime = gameDuration - time;
-	gameTimerValue.innerText = currTime.toString();
-	const timer = setInterval(() => {
-		time++;
-		currTime = gameDuration - time;
-		gameTimerValue.innerText = currTime;
-		if(currTime <= 0) {
-			clearInterval(timer);
-			socket.emit("GAME_FINISHED", { lettersCount: text.length, time });
-		}
-		socket.on("GAME_FINISHED_SUCCESS", () => clearInterval(timer));
-	}, 1000)
+	timerElement.innerText = time;
 }
 
-const getText = async (randomNumber) => {
-	try {
-		const res = await fetch(`http://localhost:3002/game/texts/${randomNumber}`);
-		return await res.text()
-	} catch (error) {
-		console.log(error)
-	}
+const updateTimer = ({ time }) => {
+	const gameTimerValue = document.getElementById('game-timer-seconds');
+
+	gameTimerValue.innerText = time;
 }
 
 socket.on("PROGRESS_UPDATED_SUCCESS", setProgress);
 socket.on("START_GAME_SUCCESS", startGame);
-socket.on("START_TIMER_BEFORE_GAME", startTimerBeforeGame);
+socket.on("ALL_PLAYERS_READY", startTimerBeforeGame);
+socket.on("UPDATE_TIMER", updateTimer);
+socket.on("UPDATE_TIMER_BEFORE_GAME", updateTimerBeforeGame);
