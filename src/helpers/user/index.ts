@@ -1,8 +1,8 @@
-import { getRoomsMap } from '../../socket';
+import { roomsMap } from '../../socket/rooms';
 import { Room, User } from '../../types';
 import { getRoom, setRoom } from '../room';
 
-export const getRoomUsers = (roomName: string): User[] => getRoomsMap().get(roomName)?.users || [];
+export const getRoomUsers = (roomName: string): User[] => roomsMap.get(roomName)?.users || [];
 
 export const setRoomUsers = (roomName: string, newUsers: User[]) => {
 	const room = getRoom(roomName);

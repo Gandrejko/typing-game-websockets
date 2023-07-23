@@ -1,8 +1,7 @@
-import { getRoomsMap } from '../../socket';
 import { MAXIMUM_USERS_FOR_ONE_ROOM } from '../../socket/config';
+import { roomsMap } from '../../socket/rooms';
 
 export const getRoomsList = () => {
-	const roomsMap = getRoomsMap();
 	const roomsArray = [...roomsMap.entries()];
 
 	const roomsList = roomsArray.map(([roomName, {users, text, time}]) => {

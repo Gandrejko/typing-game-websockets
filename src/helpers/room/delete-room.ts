@@ -1,6 +1,6 @@
-import { getRoomsMap } from '../../socket';
+import { roomsMap } from '../../socket/rooms';
 
 export const deleteRoom = (roomName, server) => {
-	getRoomsMap().delete(roomName);
+	roomsMap.delete(roomName);
 	server.emit("ROOM_DELETED", { roomName });
 };

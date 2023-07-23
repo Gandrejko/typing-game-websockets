@@ -7,14 +7,14 @@ import { finishGame } from '../helpers/room/finish-game';
 import { getRoomsList } from '../helpers/room/get-rooms-list';
 import { joinRoom } from '../helpers/room/join-room';
 import { leaveRoom } from '../helpers/room/leave-room';
-import { startTimerBeforeGame } from '../helpers/room/start-timer-before-game';
 import { setPlayerSpeed } from '../helpers/set-player-speed';
 import { startGame } from '../helpers/start-game';
 import { getRoomUsers, getUser, getUserIndex, setRoomUsers } from '../helpers/user';
 import { checkUsersReady } from '../helpers/user/check-users-ready';
 import { getUsersCount } from '../helpers/user/get-users-count';
-import { getRoomsMap } from './index';
+import { RoomsMap } from '../types';
 
+export const roomsMap: RoomsMap = new Map();
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
   socket.emit("LIST_ROOMS_RESPONSE", getRoomsList());
 
@@ -25,7 +25,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
       });
       return;
     }
-    if (getRoomsMap().has(roomName)) {
+    if (roomsMap.has(roomName)) {
       socket.emit("FAIL", {
         message: `Room with name "${roomName}" already exist`,
       });
@@ -101,7 +101,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     setPlayerSpeed(roomName, roomUsers, username, roomTextLength , roomTime);
 
     socket.emit("PLAYER_FINISHED_SUCCESS");
-    const allPlayersFinished = getRoomsMap().get(roomName)?.users.every(user => user.speed !== null);
+    const allPlayersFinished = roomsMap.get(roomName)?.users.every(user => user.speed !== null);
     if(allPlayersFinished) {
       finishGame(roomName, server);
     }

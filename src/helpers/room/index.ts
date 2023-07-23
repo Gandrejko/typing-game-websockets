@@ -1,11 +1,10 @@
-import { getRoomsMap } from '../../socket';
-import { SECONDS_FOR_GAME } from '../../socket/config';
+import { roomsMap } from '../../socket/rooms';
 import { Room } from '../../types';
 
-export const getRoom = (roomName: string): Room | undefined => getRoomsMap().get(roomName);
+export const getRoom = (roomName: string): Room | undefined => roomsMap.get(roomName);
 
 export const setRoom = (roomName: string, newRoom: Room) => {
-	getRoomsMap().set(roomName, newRoom);
+	roomsMap.set(roomName, newRoom);
 }
 
 export const getRoomTime = (roomName: string): number | undefined => getRoom(roomName)?.time;

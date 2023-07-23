@@ -1,9 +1,8 @@
-import { getRoomsMap } from '../../socket';
-import { User } from '../../types';
+import { roomsMap } from '../../socket/rooms';
 
 export const findRoomName = (username: string): string => {
 	let roomName;
-	getRoomsMap().forEach(({users}, room) => {
+	roomsMap.forEach(({users}, room) => {
 		users.find(user => {
 			if(user.username === username) {
 				roomName = room;

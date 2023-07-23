@@ -1,12 +1,12 @@
-import { getRoomsMap } from '../../socket';
 import { MAXIMUM_USERS_FOR_ONE_ROOM } from '../../socket/config';
+import { roomsMap } from '../../socket/rooms';
 import { getRoomUsers } from '../user';
 import { getUsersCount } from '../user/get-users-count';
 import { addUserToRoom } from './add-user-to-room';
 import { getRoomsList } from './get-rooms-list';
 
 export const joinRoom = ({roomName, server, socket, username}) => {
-	if (!getRoomsMap().has(roomName)) {
+	if (!roomsMap.has(roomName)) {
 		return;
 	}
 

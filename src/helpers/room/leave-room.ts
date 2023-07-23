@@ -1,11 +1,11 @@
-import { getRoomsMap } from '../../socket';
+import { roomsMap } from '../../socket/rooms';
 import { getUsersCount } from '../user/get-users-count';
 import { deleteRoom } from './delete-room';
 import { getRoomsList } from './get-rooms-list';
 import { removeUserFromRoom } from './remove-user-from-room';
 
 export const leaveRoom = ({roomName, server, username}) => {
-	if (!getRoomsMap().has(roomName)) {
+	if (!roomsMap.has(roomName)) {
 		return;
 	}
 
