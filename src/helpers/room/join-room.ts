@@ -15,7 +15,7 @@ export const joinRoom = ({roomName, server, socket, username}) => {
 
 	const currentCount = getUsersCount(roomName);
 	if (currentCount >= MAXIMUM_USERS_FOR_ONE_ROOM) {
-		server.emit("FULL_ROOM", roomName);
+		server.emit("REMOVE_ROOM", roomName);
 	} else {
 		server.emit("LIST_ROOMS_RESPONSE", getRoomsList());
 	}

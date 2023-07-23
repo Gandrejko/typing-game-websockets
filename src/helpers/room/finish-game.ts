@@ -3,6 +3,7 @@ import { getSortedUsers } from '../get-sorted-users';
 import { resetRoomUsers } from '../reset-room-users';
 import { setPlayerSpeed } from '../set-player-speed';
 import { getRoomUsers } from '../user';
+import { getRoomsList } from './get-rooms-list';
 import { getRoomText } from './index';
 import { resetRoom } from './reset-room';
 
@@ -21,4 +22,6 @@ export const finishGame = (roomName, server) => {
 
 	resetRoom(roomName);
 	resetRoomUsers(roomName);
+
+	server.emit("LIST_ROOMS_RESPONSE", getRoomsList());
 }

@@ -138,7 +138,7 @@ const finishGame = ({ usersSortedArray, roomName }) => {
 
 socket.on("CHANGE_READY_BTN", changeReadyStatusBtn);
 socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
-socket.on("FULL_ROOM", removeRoomElement);
+socket.on("REMOVE_ROOM", removeRoomElement);
 socket.on("ADD_USER", addUser);
 socket.on("REMOVE_USER", removeUserElement);
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
