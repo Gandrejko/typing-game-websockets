@@ -3,6 +3,7 @@ import { startGame } from '../start-game';
 import { startMainTimer } from './start-main-timer';
 
 export const startTimerBeforeGame = (roomName, socket, server, text: string) => {
+	server.emit("START_TIMER_BEFORE_GAME");
 	let time = SECONDS_TIMER_BEFORE_START_GAME;
 	server.in(roomName).emit("UPDATE_TIMER_BEFORE_GAME", { time });
 	const timer = setInterval(() => {

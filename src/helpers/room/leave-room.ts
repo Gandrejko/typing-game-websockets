@@ -1,16 +1,22 @@
 import { roomsMap } from '../../socket/rooms';
+import { startGame } from '../start-game';
 import { getRoomUsers } from '../user';
-import { getUsersCount } from '../user/get-users-count';
+import { checkUsersReady } from '../user/check-users-ready';
 import { deleteRoom } from './delete-room';
 import { getRoomsList } from './get-rooms-list';
 import { removeUserFromRoom } from './remove-user-from-room';
 
-export const leaveRoom = ({roomName, server, username}) => {
+export const leaveRoom = ({roomName, server, username, socket}) => {
 	if (!roomsMap.has(roomName)) {
 		return;
 	}
+	socket.leave(roomName);
 
 	removeUserFromRoom(roomName, server, username);
+
+	if(checkUsersReady(roomName)) {
+		startGame(roomName, socket, server);
+	}
 
 	const roomUsers = getRoomUsers(roomName);
 

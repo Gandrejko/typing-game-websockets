@@ -48,9 +48,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   });
 
   socket.on("LEAVE_ROOM", (roomName: string) => {
-    socket.leave(roomName);
-
-    leaveRoom({roomName, server, username});
+    leaveRoom({roomName, server, username, socket});
 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
   });
@@ -69,7 +67,6 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     setRoomUsers(roomName, newUsers)
 
     if(checkUsersReady(roomName)) {
-      server.emit("ALL_PLAYERS_READY");
       startGame(roomName, socket, server);
     }
 
@@ -109,7 +106,6 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
   socket.on("disconnect", () => {
     const roomName = findRoomName(username);
-    socket.leave(roomName);
-    leaveRoom({roomName, server, username});
+    leaveRoom({roomName, server, username, socket});
   });
 };

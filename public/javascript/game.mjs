@@ -100,6 +100,6 @@ const updateTimer = ({ time }) => {
 
 socket.on("PROGRESS_UPDATED_SUCCESS", setProgress);
 socket.on("START_GAME_SUCCESS", startGame);
-socket.on("ALL_PLAYERS_READY", startTimerBeforeGame);
+socket.on("START_TIMER_BEFORE_GAME", startTimerBeforeGame);
 socket.on("UPDATE_TIMER", updateTimer);
 socket.on("UPDATE_TIMER_BEFORE_GAME", updateTimerBeforeGame);

@@ -1,6 +1,5 @@
 import { getRoomUsers, setRoomUsers } from '../user';
 
-
 export const removeUserFromRoom = (roomName, server, username) => {
 	const roomUsers = getRoomUsers(roomName);
 	if(!roomUsers) {
