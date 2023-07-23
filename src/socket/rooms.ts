@@ -9,6 +9,7 @@ import { joinRoom } from '../helpers/room/join-room';
 import { leaveRoom } from '../helpers/room/leave-room';
 import { startTimerBeforeGame } from '../helpers/room/start-timer-before-game';
 import { setPlayerSpeed } from '../helpers/set-player-speed';
+import { startGame } from '../helpers/start-game';
 import { getRoomUsers, getUser, getUserIndex, setRoomUsers } from '../helpers/user';
 import { checkUsersReady } from '../helpers/user/check-users-ready';
 import { getUsersCount } from '../helpers/user/get-users-count';
@@ -69,7 +70,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
     if(checkUsersReady(roomName)) {
       server.emit("ALL_PLAYERS_READY");
-      startTimerBeforeGame(roomName, socket, server);
+      startGame(roomName, socket, server);
     }
 
     server.emit("CHANGE_READY_SUCCESS", {username, ready: newReady})
