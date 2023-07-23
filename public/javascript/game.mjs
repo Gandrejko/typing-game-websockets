@@ -1,5 +1,5 @@
 import { addClass, createElement, removeClass } from './helpers/domHelper.mjs';
-import {setProgress} from './views/user.mjs';
+import { setProgress } from './views/user.mjs';
 
 import socket from './socket.standalone.mjs';
 

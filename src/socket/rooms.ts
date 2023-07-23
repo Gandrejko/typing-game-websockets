@@ -13,6 +13,7 @@ import { getRoomUsers, getUser, getUserIndex, setRoomUsers } from '../helpers/us
 import { checkUsersReady } from '../helpers/user/check-users-ready';
 import { getUsersCount } from '../helpers/user/get-users-count';
 import { RoomsMap } from '../types';
+import { usernames } from './index';
 
 export const roomsMap: RoomsMap = new Map();
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
@@ -107,5 +108,6 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
   socket.on("disconnect", () => {
     const roomName = findRoomName(username);
     leaveRoom({roomName, server, username, socket});
+    usernames.delete(username);
   });
 };

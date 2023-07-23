@@ -17,6 +17,13 @@ import {
 import socket from "./socket.standalone.mjs";
 import usernameSS from "./username.standalone.mjs";
 
+const userExist = ({ message }) => {
+  	showMessageModal({ message, onClose: () => window.location.replace('/login') });
+  	sessionStorage.removeItem('username');
+
+    setTimeout(() => window.location.replace('/login'), 2000);
+}
+
 const addRoomBtn = document.getElementById("add-room-btn");
 addRoomBtn.addEventListener("click", () => addRoom());
 
@@ -142,3 +149,4 @@ socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("GAME_FINISHED", finishGame);
 socket.on("LIST_ROOMS_RESPONSE", updateRooms);
 socket.on("LIST_USERS_RESPONSE", updateUsers);
+socket.on("USER_EXIST", userExist);
