@@ -18,10 +18,9 @@ import socket from "./socket.standalone.mjs";
 import usernameSS from "./username.standalone.mjs";
 
 const addRoomBtn = document.getElementById("add-room-btn");
+addRoomBtn.addEventListener("click", () => addRoom());
 
-addRoomBtn.addEventListener("click", () => onAddRoom());
-
-const onAddRoom = () => {
+const addRoom = () => {
   showInputModal({
     title: "Enter room name",
     onSubmit: (roomName) => {
@@ -30,14 +29,24 @@ const onAddRoom = () => {
   });
 };
 
-socket.on("FAIL", (message) => showMessageModal(message));
-socket.on("ADD_ROOM_SUCCESS", (roomName) => onJoinRoom(roomName));
+const deleteRoom = ({ roomName }) => {
+  removeRoomElement(roomName);
+};
 
-const onJoinRoom = (roomName) => {
+socket.on("FAIL", (message) => showMessageModal(message));
+socket.on("ADD_ROOM_SUCCESS", (roomName) => joinRoom(roomName));
+
+const joinRoom = (roomName) => {
   socket.emit("JOIN_ROOM", roomName);
 }
 
-const updateRooms = ({ roomName, numberOfUsers }) => {
+const updateRooms = (list) => {
+  for (const [roomName, numberOfUsers] of list) {
+    updateRoom({ roomName, numberOfUsers });
+  }
+};
+
+const updateRoom = ({ roomName, numberOfUsers }) => {
   if (!roomName) {
     return;
   }
@@ -48,8 +57,16 @@ const updateRooms = ({ roomName, numberOfUsers }) => {
     appendRoomElement({
       name: roomName,
       numberOfUsers: numberOfUsers,
-      onJoin: () => onJoinRoom(roomName),
+      onJoin: () => joinRoom(roomName),
     });
+  }
+};
+
+const updateUsers = (list) => {
+  for (const user of list) {
+    if(!userExists(user.username)) {
+      appendUserElement(user);
+    }
   }
 };
 
@@ -64,15 +81,15 @@ const joinRoomDone = (roomName) => {
   roomTitle.innerText = roomName;
 };
 
-const onLeaveRoom = () => {
+const leaveRoom = () => {
   const roomName = document.getElementById("room-name");
   socket.emit("LEAVE_ROOM", roomName.innerText);
 };
 
 const quitRoomBtn = document.getElementById("quit-room-btn");
-quitRoomBtn.addEventListener("click", onLeaveRoom);
+quitRoomBtn.addEventListener("click", leaveRoom);
 
-const leaveRoom = () => {
+const leaveRoomDone = () => {
   const gamePage = document.getElementById("game-page");
   const roomsPage = document.getElementById("rooms-page");
 
@@ -81,7 +98,7 @@ const leaveRoom = () => {
 };
 
 const onReadyChange = () => {
-  socket.emit("CHANGE_READY", usernameSS)
+  socket.emit("CHANGE_READY", usernameSS);
 }
 
 const readyBtn = document.getElementById('ready-btn');
@@ -124,23 +141,9 @@ socket.on("CHANGE_READY_SUCCESS", changeReadyStatus);
 socket.on("FULL_ROOM", removeRoomElement);
 socket.on("ADD_USER", addUser);
 socket.on("REMOVE_USER", removeUserElement);
-
-socket.on("LEAVE_ROOM_SUCCESS", leaveRoom);
+socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("GAME_FINISHED", finishGame);
-
-socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
-
-socket.on("LIST_ROOMS_RESPONSE", (list) => {
-  for (const [roomName, numberOfUsers] of list) {
-    updateRooms({ roomName, numberOfUsers });
-  }
-});
-
-socket.on("LIST_USERS_RESPONSE", (list) => {
-  for (const user of list) {
-    if(!userExists(user.username)) {
-      appendUserElement(user);
-    }
-  }
-});
+socket.on("ROOM_DELETED", deleteRoom);
+socket.on("LIST_ROOMS_RESPONSE", updateRooms);
+socket.on("LIST_USERS_RESPONSE", updateUsers);

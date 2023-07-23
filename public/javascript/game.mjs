@@ -3,8 +3,6 @@ import {setProgress} from './views/user.mjs';
 
 import socket from './socket.standalone.mjs';
 
-let time = 0;
-
 const removeButtons = () => {
 	const quitRoomBtn = document.getElementById("quit-room-btn");
 	const readyBtn = document.getElementById('ready-btn');
