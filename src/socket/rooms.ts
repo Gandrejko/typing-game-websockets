@@ -1,9 +1,9 @@
 import { Server, Socket } from "socket.io";
 import { defaultRoom } from '../constants';
-import { getSortedUsers } from '../helpers/get-sorted-users';
-import { resetPlayers } from '../helpers/reset-players';
-import { setRoom } from '../helpers/room';
+import { calcProgress } from '../helpers/calc-progress';
+import { getRoomText, getRoomTime, setRoom } from '../helpers/room';
 import { findRoomName } from '../helpers/room/find-room-name';
+import { finishGame } from '../helpers/room/finish-game';
 import { joinRoom } from '../helpers/room/join-room';
 import { leaveRoom } from '../helpers/room/leave-room';
 import { startTimerBeforeGame } from '../helpers/room/start-timer-before-game';
@@ -51,7 +51,7 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
     leaveRoom({roomName, server, username});
 
     socket.emit("LEAVE_ROOM_SUCCESS", roomName);
-  })
+  });
 
   socket.on("CHANGE_READY", (username) => {
     const roomName = findRoomName(username);
@@ -68,53 +68,46 @@ export const setupRoomsControls = (socket: Socket, server: Server, username) => 
 
     if(checkUsersReady(roomName)) {
       server.emit("ALL_PLAYERS_READY");
-      startTimerBeforeGame(roomName, socket);
-
+      startTimerBeforeGame(roomName, socket, server);
     }
 
     server.emit("CHANGE_READY_SUCCESS", {username, ready: newReady})
     socket.emit("CHANGE_READY_BTN", {ready: newReady})
-  })
-
-  socket.on("PROGRESS_UPDATED", (progress) => {
-    server.emit("PROGRESS_UPDATED_SUCCESS", {username, progress})
   });
 
-  socket.on("PLAYER_FINISHED", ({lettersCount, time}) => {
+  socket.on("PROGRESS_UPDATED", ({ lettersTyped }) => {
     const roomName = findRoomName(username);
     const roomUsers = getRoomUsers(roomName);
-    if(!roomUsers) {
+    const roomTime = getRoomTime(roomName);
+    const roomTextLength = getRoomText(roomName)?.length;
+    if(roomTime === undefined || roomTextLength === undefined) {
+       return;
+    }
+    setPlayerSpeed(roomName, roomUsers, username, lettersTyped, roomTime);
+
+    server.emit("PROGRESS_UPDATED_SUCCESS", {username, progress: calcProgress(roomTextLength, lettersTyped)});
+  });
+
+  socket.on("PLAYER_FINISHED", () => {
+    const roomName = findRoomName(username);
+    const roomUsers = getRoomUsers(roomName);
+    const roomTime = getRoomTime(roomName);
+    const roomTextLength = getRoomText(roomName)?.length;
+    if(!roomUsers || roomTime === undefined || roomTextLength === undefined) {
       return;
     }
-    const updatedUsers = setPlayerSpeed(roomUsers, username, lettersCount, time);
-    setRoomUsers(roomName, updatedUsers);
+    setPlayerSpeed(roomName, roomUsers, username, roomTextLength , roomTime);
 
     socket.emit("PLAYER_FINISHED_SUCCESS");
-    if(getRoomsMap().get(roomName)?.users.every(user => user.speed !== null)) {
-      const roomUsers = getRoomUsers(roomName);
-      server.in(roomName).emit("GAME_FINISHED_SUCCESS", {usersSortedArray: getSortedUsers(roomUsers), roomName});
-      const resetedPlayers = resetPlayers(roomUsers);
-      setRoomUsers(roomName, resetedPlayers);
+    const allPlayersFinished = getRoomsMap().get(roomName)?.users.every(user => user.speed !== null);
+    if(allPlayersFinished) {
+      finishGame(roomName, server);
     }
-  })
-
-  socket.on("GAME_FINISHED", ({ lettersCount, time }) => {
-    const roomName = findRoomName(username);
-    const roomUsers = getRoomUsers(roomName);
-    if(!roomUsers) {
-      return;
-    }
-    const updatedUsers = setPlayerSpeed(roomUsers, username, lettersCount, time);
-    setRoomUsers(roomName, updatedUsers);
-
-    server.in(roomName).emit("GAME_FINISHED_SUCCESS", {usersSortedArray: getSortedUsers(roomUsers), roomName});
-    const resetedPlayers = resetPlayers(roomUsers);
-    setRoomUsers(roomName, resetedPlayers);
-  })
+  });
 
   socket.on("disconnect", () => {
     const roomName = findRoomName(username);
     socket.leave(roomName);
     leaveRoom({roomName, server, username});
-  })
+  });
 };

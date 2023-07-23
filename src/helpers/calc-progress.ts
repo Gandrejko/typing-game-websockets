@@ -1,0 +1,1 @@
+export const calcProgress = (textLength: number, lettersTyped: number) => (lettersTyped / textLength) * 100

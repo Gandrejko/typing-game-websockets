@@ -1,7 +1,8 @@
 import { User } from '../types';
+import { setRoomUsers } from './user';
 
-export const setPlayerSpeed = (roomUsers: User[], username: string, lettersCount: number, time: number) => {
-  return roomUsers.map(user => {
+export const setPlayerSpeed = (roomName: string, roomUsers: User[], username: string, lettersCount: number, time: number) => {
+  const newUsers = roomUsers.map(user => {
 	  if(user.username === username) {
 		user = {
 		  ...user,
@@ -11,4 +12,5 @@ export const setPlayerSpeed = (roomUsers: User[], username: string, lettersCount
 
 	  return user
   })
+	setRoomUsers(roomName, newUsers);
 }

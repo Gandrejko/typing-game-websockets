@@ -7,6 +7,7 @@ export type User = {
 export type Room = {
 	users: User[],
 	time: number,
+	text: string,
 }
 
 export type RoomsMap = Map<string, Room>;

@@ -34,12 +34,6 @@ const setupText = (text = '') => {
 	})
 }
 
-const calcProgressBar = (text) => {
-	const letterElements = document.querySelectorAll('.letter.success');
-	const countSuccessLetters = letterElements.length;
-	return (countSuccessLetters / text.length) * 100
-}
-
 const hidePreGameTimer = () => {
 	const timerElement = document.getElementById('timer');
 
@@ -82,12 +76,7 @@ const startGame = ({ text }) => {
 		} else if(key === letters[currIndex].innerHTML) {
 			removeClass(letters[currIndex], 'next');
 			addClass(letters[currIndex], 'success');
-			const progress = calcProgressBar(text);
-			socket.emit("PROGRESS_UPDATED", progress);
-			if(progress === 100) {
-				socket.emit("PLAYER_FINISHED", { lettersCount: text.length, time });
-			}
-
+			socket.emit("PROGRESS_UPDATED", { lettersTyped: currIndex + 1 });
 		} else {
 			return
 		}
@@ -95,7 +84,7 @@ const startGame = ({ text }) => {
 		currIndex++;
 	}
 	window.addEventListener('keydown', typeEvent);
-	socket.on("GAME_FINISHED_SUCCESS", () => removeEventListener('keydown', typeEvent));
+	socket.on("GAME_FINISHED", () => removeEventListener('keydown', typeEvent));
 	socket.on("PLAYER_FINISHED_SUCCESS", () => removeEventListener('keydown', typeEvent));
 }
 

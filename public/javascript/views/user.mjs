@@ -51,7 +51,6 @@ const appendUserElement = ({ username, ready, isCurrentUser }) => {
 
 const changeReadyStatus = ({ username, ready }) => {
 	const readyStatusElement = document.querySelector(`.ready-status[data-username='${username}']`);
-	console.log(ready);
 	readyStatusElement.innerHTML = getReadySign(ready);
 	readyStatusElement.dataset.ready = Boolean(ready);
 };

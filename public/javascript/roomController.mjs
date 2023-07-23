@@ -114,8 +114,8 @@ const finishGame = ({ usersSortedArray, roomName }) => {
   usersSortedArray.forEach(username => {
     removeUserElement(username);
     addUser({roomName, username, ready: false});
-    changeReadyStatus({username, ready: false})
-    changeReadyStatusBtn({ready: false})
+    changeReadyStatus({username, ready: false});
+    changeReadyStatusBtn({ready: false});
   })
 }
 
@@ -128,7 +128,7 @@ socket.on("REMOVE_USER", removeUserElement);
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoom);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("ROOM_UPDATED", updateRooms);
-socket.on("GAME_FINISHED_SUCCESS", finishGame);
+socket.on("GAME_FINISHED", finishGame);
 
 socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
 
