@@ -29,10 +29,6 @@ const addRoom = () => {
   });
 };
 
-const deleteRoom = ({ roomName }) => {
-  removeRoomElement(roomName);
-};
-
 socket.on("FAIL", (message) => showMessageModal(message));
 socket.on("ADD_ROOM_SUCCESS", (roomName) => joinRoom(roomName));
 
@@ -144,6 +140,5 @@ socket.on("REMOVE_USER", removeUserElement);
 socket.on("LEAVE_ROOM_SUCCESS", leaveRoomDone);
 socket.on("JOIN_ROOM_SUCCESS", joinRoomDone);
 socket.on("GAME_FINISHED", finishGame);
-socket.on("ROOM_DELETED", deleteRoom);
 socket.on("LIST_ROOMS_RESPONSE", updateRooms);
 socket.on("LIST_USERS_RESPONSE", updateUsers);

@@ -1,4 +1,5 @@
 import { roomsMap } from '../../socket/rooms';
+import { getRoomUsers } from '../user';
 import { getUsersCount } from '../user/get-users-count';
 import { deleteRoom } from './delete-room';
 import { getRoomsList } from './get-rooms-list';
@@ -11,9 +12,9 @@ export const leaveRoom = ({roomName, server, username}) => {
 
 	removeUserFromRoom(roomName, server, username);
 
-	const currentCount = getUsersCount(roomName);
+	const roomUsers = getRoomUsers(roomName);
 
-	if (currentCount <= 0) {
+	if (roomUsers.length === 0) {
 		deleteRoom(roomName, server);
 	} else {
 		server.emit("LIST_ROOMS_RESPONSE", getRoomsList());
