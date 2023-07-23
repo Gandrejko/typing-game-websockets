@@ -4,6 +4,7 @@ import { calcProgress } from '../helpers/calc-progress';
 import { getRoomText, getRoomTime, setRoom } from '../helpers/room';
 import { findRoomName } from '../helpers/room/find-room-name';
 import { finishGame } from '../helpers/room/finish-game';
+import { getRoomsList } from '../helpers/room/get-rooms-list';
 import { joinRoom } from '../helpers/room/join-room';
 import { leaveRoom } from '../helpers/room/leave-room';
 import { startTimerBeforeGame } from '../helpers/room/start-timer-before-game';
@@ -14,7 +15,7 @@ import { getUsersCount } from '../helpers/user/get-users-count';
 import { getRoomsMap } from './index';
 
 export const setupRoomsControls = (socket: Socket, server: Server, username) => {
-  socket.emit("LIST_ROOMS_RESPONSE", [...getRoomsMap().entries()]);
+  socket.emit("LIST_ROOMS_RESPONSE", getRoomsList());
 
   socket.on("ADD_ROOM", (roomName: string) => {
     if(roomName.trim().length === 0) {

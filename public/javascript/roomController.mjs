@@ -133,8 +133,8 @@ socket.on("GAME_FINISHED", finishGame);
 socket.on("ROOM_DELETED", ({ roomName }) => removeRoomElement(roomName));
 
 socket.on("LIST_ROOMS_RESPONSE", (list) => {
-  for (const [room, users] of list) {
-    updateRooms({ roomName: room, numberOfUsers: users.length });
+  for (const [roomName, numberOfUsers] of list) {
+    updateRooms({ roomName, numberOfUsers });
   }
 });
 
